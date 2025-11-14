@@ -1,48 +1,28 @@
 """
-Database Schemas
+Database Schemas for Pill Reminder App
 
-Define your MongoDB collection schemas here using Pydantic models.
-These schemas are used for data validation in your application.
-
-Each Pydantic model represents a collection in your database.
-Model name is converted to lowercase for the collection name:
-- User -> "user" collection
-- Product -> "product" collection
-- BlogPost -> "blogs" collection
+Each Pydantic model represents a MongoDB collection. The collection name is the
+lowercase class name (e.g., Medication -> "medication").
 """
-
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import List, Optional
 
-# Example schemas (replace with your own):
-
-class User(BaseModel):
+class Medication(BaseModel):
+    """Medications prescribed to a person.
+    Collection: medication
     """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
-    """
-    name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+    name: str = Field(..., description="Medication name")
+    dosage: str = Field(..., description="Dosage instructions, e.g. '1 pill' or '5ml'")
+    times: List[str] = Field(..., description="Daily reminder times in HH:MM 24h format")
+    days: List[int] = Field(default_factory=lambda: [0,1,2,3,4,5,6], description="Days of week (0=Mon..6=Sun)")
+    notes: Optional[str] = Field(None, description="Additional notes")
+    active: bool = Field(True, description="Whether this medication is active")
 
-class Product(BaseModel):
+class Intake(BaseModel):
+    """Log of taken medications for a specific date/time.
+    Collection: intake
     """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
-    """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
-
-# Add your own schemas here:
-# --------------------------------------------------
-
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+    medication_id: str = Field(..., description="ID of the medication document")
+    time: str = Field(..., description="Scheduled time in HH:MM 24h format")
+    date: str = Field(..., description="Calendar date in YYYY-MM-DD")
+    taken_at: Optional[str] = Field(None, description="ISO timestamp when marked taken")
