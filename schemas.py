@@ -26,3 +26,12 @@ class Intake(BaseModel):
     time: str = Field(..., description="Scheduled time in HH:MM 24h format")
     date: str = Field(..., description="Calendar date in YYYY-MM-DD")
     taken_at: Optional[str] = Field(None, description="ISO timestamp when marked taken")
+
+class CaregiverLink(BaseModel):
+    """Shareable, read-only links for caregivers.
+    Collection: caregiverlink
+    """
+    token: str = Field(..., description="Unique share token")
+    read_only: bool = Field(True, description="Whether the link is read-only")
+    expires_at: Optional[str] = Field(None, description="Optional ISO timestamp for expiration")
+    medication_ids: Optional[List[str]] = Field(None, description="Optional subset of medication IDs to share")
